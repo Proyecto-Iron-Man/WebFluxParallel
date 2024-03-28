@@ -11,6 +11,21 @@ import java.util.List;
 public class ApiStudentCourseServiceImpl implements ApiStudentCourseService {
     @Override
     public Flux<ApiStudentCourse> getStudentCoursesByStudentId(Long studentId) {
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if(222 == studentId) {
+            return Flux.empty();
+        }
+
+        if(2222 == studentId) {
+            return Flux.error(new RuntimeException("Error"));
+        }
+
+
         return Flux.fromIterable(getStudentCourses(studentId));
     }
 

@@ -10,8 +10,19 @@ public class ApiStudentServiceImpl implements ApiStudentService {
     @Override
     public Mono<ApiStudent> getStudentByDocumentNumber(String documentNumber) {
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        var id = 1000L;
+        if (documentNumber.matches("\\d+")) {
+             id = Long.parseLong(documentNumber);
+        }
+
         var student = ApiStudent.builder()
-                .id(100023L)
+                .id(id)
                 .documentNumber(documentNumber)
                 .name("John Doe")
                 .email("jdoe@gmail.com")
