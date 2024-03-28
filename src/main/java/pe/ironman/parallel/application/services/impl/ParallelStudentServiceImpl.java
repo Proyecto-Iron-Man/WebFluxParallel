@@ -8,11 +8,15 @@ import pe.ironman.parallel.application.dtos.StudentDto;
 import pe.ironman.parallel.application.services.ParallelStudentService;
 import pe.ironman.parallel.data.clientapi.studentcareers.models.ApiStudentCareer;
 import pe.ironman.parallel.data.clientapi.studentcareers.services.ApiStudentCareerService;
+import pe.ironman.parallel.data.clientapi.studentcourses.models.ApiStudentCourse;
 import pe.ironman.parallel.data.clientapi.studentcourses.services.ApiStudentCourseService;
+import pe.ironman.parallel.data.clientapi.students.models.ApiStudent;
 import pe.ironman.parallel.data.clientapi.students.services.ApiStudentService;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
+import java.util.List;
+
+import static pe.ironman.parallel.utils.Constant.*;
 
 @RequiredArgsConstructor
 @Service
@@ -24,44 +28,49 @@ public class ParallelStudentServiceImpl implements ParallelStudentService {
 
     @Override
     public Mono<StudentCourseDto> getStudentCourses(String documentNumber) {
-        var response = apiStudentService.getStudentByDocumentNumber(documentNumber)
-                .flatMap(apiStudent ->{
+        return apiStudentService.getStudentByDocumentNumber(documentNumber)
+                .flatMap(this::getStudentCourseMono);
+    }
 
-                    var prepareApiStudentCareer = apiStudentCareerService
-                            .getStudentCareerByStudentId(apiStudent.getId())
-                            .onErrorResume(e -> Mono.empty())
-                            .switchIfEmpty(Mono.just(ApiStudentCareer.builder().build()));
+    private Mono<StudentCourseDto> getStudentCourseMono(ApiStudent apiStudent) {
+        var prepareApiStudentCareer = apiStudentCareerService
+                .getStudentCareerByStudentId(apiStudent.getId())
+                .onErrorResume(e -> Mono.just(API_STUDENT_CAREER_DEFAULT_WHEN_ERROR))
+                .switchIfEmpty(Mono.just(API_STUDENT_CAREER_DEFAULT));
 
-                    var prepareApiStudentCourse = apiStudentCourseService
-                            .getStudentCoursesByStudentId(apiStudent.getId())
-                            .collectList()
-                            .onErrorResume(e -> Mono.just(new ArrayList<>()));
+        var prepareApiStudentCourse = apiStudentCourseService
+                .getStudentCoursesByStudentId(apiStudent.getId())
+                .collectList()
+                .onErrorResume(e -> Mono.just(List.of(API_STUDENT_COURSE_DEFAULT_WHEN_ERROR)));
 
-                    return Mono.zip(prepareApiStudentCareer, prepareApiStudentCourse, (apiStudentCareer, apiStudentCourses) -> {
-                        var student = StudentDto.builder()
-                                .documentNumber(apiStudent.getDocumentNumber())
-                                .name(apiStudent.getName())
-                                .email(apiStudent.getEmail())
-                                .careerName(apiStudentCareer.getCareerName())
-                                .careerCredits(apiStudentCareer.getCareerCredits())
-                                .percentageCompleted(apiStudentCareer.getPercentageCompleted())
-                                .build();
+        return Mono.zip(prepareApiStudentCareer, prepareApiStudentCourse, (apiStudentCareer, apiStudentCourses)
+                -> getStudentCourse(apiStudent, apiStudentCareer, apiStudentCourses));
+    }
 
-                        var courses = apiStudentCourses.stream()
-                                .map(apiStudentCourse -> CourseDto.builder()
-                                        .name(apiStudentCourse.getCourseName())
-                                        .credits(apiStudentCourse.getCourseCredits())
-                                        .duration(apiStudentCourse.getCourseDuration())
-                                        .build())
-                                .toList();
+    private static StudentCourseDto getStudentCourse(
+            ApiStudent apiStudent, ApiStudentCareer apiStudentCareer, List<ApiStudentCourse> apiStudentCourses) {
+        var student = StudentDto.builder()
+                .documentNumber(apiStudent.getDocumentNumber())
+                .name(apiStudent.getName())
+                .email(apiStudent.getEmail())
+                .careerName(apiStudentCareer.getCareerName())
+                .careerCredits(apiStudentCareer.getCareerCredits())
+                .percentageCompleted(apiStudentCareer.getPercentageCompleted())
+                .apiCareerWarningMessage(apiStudentCareer.getApiWarningMessage())
+                .build();
 
-                        return StudentCourseDto.builder()
-                                .student(student)
-                                .courses(courses)
-                                .build();
-                    });
-                });
+        var courses = apiStudentCourses.stream()
+                .map(apiStudentCourse -> CourseDto.builder()
+                        .name(apiStudentCourse.getCourseName())
+                        .credits(apiStudentCourse.getCourseCredits())
+                        .duration(apiStudentCourse.getCourseDuration())
+                        .apiCourseWarningMessage(apiStudentCourse.getApiWarningMessage())
+                        .build())
+                .toList();
 
-        return response;
+        return StudentCourseDto.builder()
+                .student(student)
+                .courses(courses)
+                .build();
     }
 }

@@ -14,4 +14,5 @@ public class StudentDto {
     private String careerName;
     private Integer careerCredits;
     private Integer percentageCompleted;
+    private String apiCareerWarningMessage;
 }

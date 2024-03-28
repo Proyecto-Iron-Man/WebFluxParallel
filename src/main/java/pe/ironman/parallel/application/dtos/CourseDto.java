@@ -11,4 +11,5 @@ public class CourseDto {
     private String name;
     private Integer credits;
     private Integer duration;
+    private String apiCourseWarningMessage;
 }

@@ -13,5 +13,5 @@ public class ApiStudentCourse {
     private Integer courseCredits;
     private Integer courseDuration;
     private Long studentId;
-
+    private String apiWarningMessage;
 }

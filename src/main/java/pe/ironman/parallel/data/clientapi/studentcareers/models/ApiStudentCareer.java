@@ -13,4 +13,5 @@ public class ApiStudentCareer {
     private Integer careerCredits;
     private Integer percentageCompleted;
     private Long studentId;
+    private String apiWarningMessage;
 }
