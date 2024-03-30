@@ -9,13 +9,6 @@ import reactor.core.publisher.Mono;
 public class ApiStudentCareerServiceImpl implements ApiStudentCareerService {
     @Override
     public Mono<ApiStudentCareer> getStudentCareerByStudentId(Long studentId) {
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         if(111 == studentId) {
             return Mono.empty();
         }
