@@ -24,7 +24,7 @@ public class SequentialStudentServiceImpl implements SequentialStudentService {
     private final ApiStudentCourseService apiStudentCourseService;
 
     @Override
-    public Mono<StudentCourseDto> getStudentCourses(String documentNumber) {
+    public Mono<StudentCourseDto> getSequentialStudentCourses(String documentNumber) {
         return apiStudentService.getStudentByDocumentNumber(documentNumber)
                 .flatMap(apiStudent -> {
                     return apiStudentCareerService

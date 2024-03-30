@@ -4,5 +4,5 @@ import pe.ironman.parallel.application.dtos.StudentCourseDto;
 import reactor.core.publisher.Mono;
 
 public interface SequentialStudentService {
-    Mono<StudentCourseDto> getStudentCourses(String documentNumber);
+    Mono<StudentCourseDto> getSequentialStudentCourses(String documentNumber);
 }

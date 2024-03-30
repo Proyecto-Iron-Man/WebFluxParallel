@@ -11,14 +11,14 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("parallel-student")
+@RequestMapping("parallel-students")
 public class ParallelStudentController {
 
     private final ParallelStudentService parallelStudentService;
 
     @GetMapping("{documentNumber}")
-    public Mono<StudentCourseDto> getStudentCourses(@PathVariable("documentNumber") String documentNumber) {
-        return parallelStudentService.getStudentCourses(documentNumber);
+    public Mono<StudentCourseDto> getParallelStudentCourses(@PathVariable("documentNumber") String documentNumber) {
+        return parallelStudentService.getParallelStudentCourses(documentNumber);
     }
 
 }

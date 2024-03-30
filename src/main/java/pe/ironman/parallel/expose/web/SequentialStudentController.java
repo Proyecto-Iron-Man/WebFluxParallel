@@ -16,7 +16,7 @@ public class SequentialStudentController {
     private final SequentialStudentService sequentialStudentService;
 
     @GetMapping("{documentNumber}")
-    public Mono<StudentCourseDto> getStudentCourses(@PathVariable("documentNumber") String documentNumber) {
-        return sequentialStudentService.getStudentCourses(documentNumber);
+    public Mono<StudentCourseDto> getSequentialStudentCourses(@PathVariable("documentNumber") String documentNumber) {
+        return sequentialStudentService.getSequentialStudentCourses(documentNumber);
     }
 }

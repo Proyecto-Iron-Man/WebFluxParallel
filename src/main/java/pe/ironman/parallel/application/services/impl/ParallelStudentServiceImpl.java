@@ -27,7 +27,7 @@ public class ParallelStudentServiceImpl implements ParallelStudentService {
 
 
     @Override
-    public Mono<StudentCourseDto> getStudentCourses(String documentNumber) {
+    public Mono<StudentCourseDto> getParallelStudentCourses(String documentNumber) {
         return apiStudentService.getStudentByDocumentNumber(documentNumber)
                 .flatMap(this::getStudentCourseMono);
     }
