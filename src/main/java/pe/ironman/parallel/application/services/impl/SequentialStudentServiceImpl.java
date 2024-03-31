@@ -16,6 +16,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static pe.ironman.parallel.utils.Constant.*;
+
 @RequiredArgsConstructor
 @Service
 public class SequentialStudentServiceImpl implements SequentialStudentService {
@@ -29,6 +31,8 @@ public class SequentialStudentServiceImpl implements SequentialStudentService {
                 .flatMap(apiStudent -> {
                     return apiStudentCareerService
                             .getStudentCareerByStudentId(apiStudent.getId())
+                            .onErrorResume(e -> Mono.just(API_STUDENT_CAREER_DEFAULT_WHEN_ERROR))
+                            .switchIfEmpty(Mono.just(API_STUDENT_CAREER_DEFAULT))
                             .flatMap(apiStudentCareer -> getStudentCourse(apiStudent, apiStudentCareer));
                 });
     }
@@ -38,6 +42,7 @@ public class SequentialStudentServiceImpl implements SequentialStudentService {
 
         return apiStudentCourseService
                 .getStudentCoursesByStudentId(apiStudent.getId())
+                .onErrorResume(e -> Mono.just(API_STUDENT_COURSE_DEFAULT_WHEN_ERROR))
                 .map(this::courseBuild)
                 .collectList()
                 .map(courses -> studentCourseBuild(courses, student));
@@ -66,6 +71,7 @@ public class SequentialStudentServiceImpl implements SequentialStudentService {
                 .name(apiStudentCourse.getCourseName())
                 .credits(apiStudentCourse.getCourseCredits())
                 .duration(apiStudentCourse.getCourseDuration())
+                .apiCourseWarningMessage(apiStudentCourse.getApiWarningMessage())
                 .build();
     }
 }

@@ -1,10 +1,14 @@
 package pe.ironman.parallel.data.clientapi.students.services.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pe.ironman.parallel.data.clientapi.students.models.ApiStudent;
 import pe.ironman.parallel.data.clientapi.students.services.ApiStudentService;
 import reactor.core.publisher.Mono;
 
+import static java.time.Duration.ofSeconds;
+
+@Slf4j
 @Service
 public class ApiStudentServiceImpl implements ApiStudentService {
     @Override
@@ -23,7 +27,10 @@ public class ApiStudentServiceImpl implements ApiStudentService {
                 .address("123 Main St")
                 .build();
 
-        return Mono.just(student);
+        return Mono.just(student)
+                .doOnNext(item -> log.info("getStudentByDocumentNumber executed on thread: {}", Thread.currentThread().getName()))
+                .delayElement(ofSeconds(1))
+                ;
     }
 }
 

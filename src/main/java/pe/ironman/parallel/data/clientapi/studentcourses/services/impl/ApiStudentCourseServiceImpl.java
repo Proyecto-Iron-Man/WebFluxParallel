@@ -1,5 +1,6 @@
 package pe.ironman.parallel.data.clientapi.studentcourses.services.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pe.ironman.parallel.data.clientapi.studentcourses.models.ApiStudentCourse;
 import pe.ironman.parallel.data.clientapi.studentcourses.services.ApiStudentCourseService;
@@ -7,6 +8,9 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 
+import static java.time.Duration.ofSeconds;
+
+@Slf4j
 @Service
 public class ApiStudentCourseServiceImpl implements ApiStudentCourseService {
     @Override
@@ -20,7 +24,10 @@ public class ApiStudentCourseServiceImpl implements ApiStudentCourseService {
         }
 
 
-        return Flux.fromIterable(getStudentCourses(studentId));
+        return Flux.fromIterable(getStudentCourses(studentId))
+                .doOnNext(item -> log.info("getStudentCoursesByStudentId executed on thread: " + Thread.currentThread().getName()))
+                .delayElements(ofSeconds(1))
+                ;
     }
 
     private List<ApiStudentCourse> getStudentCourses(Long studentId) {

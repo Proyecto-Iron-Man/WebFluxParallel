@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 import static pe.ironman.parallel.utils.Constant.*;
+import static reactor.core.scheduler.Schedulers.boundedElastic;
 
 @RequiredArgsConstructor
 @Service
@@ -36,12 +37,16 @@ public class ParallelStudentServiceImpl implements ParallelStudentService {
         var prepareApiStudentCareer = apiStudentCareerService
                 .getStudentCareerByStudentId(apiStudent.getId())
                 .onErrorResume(e -> Mono.just(API_STUDENT_CAREER_DEFAULT_WHEN_ERROR))
-                .switchIfEmpty(Mono.just(API_STUDENT_CAREER_DEFAULT));
+                .switchIfEmpty(Mono.just(API_STUDENT_CAREER_DEFAULT))
+                .subscribeOn(boundedElastic())
+                ;
 
         var prepareApiStudentCourse = apiStudentCourseService
                 .getStudentCoursesByStudentId(apiStudent.getId())
+                .onErrorResume(e -> Mono.just(API_STUDENT_COURSE_DEFAULT_WHEN_ERROR))
                 .collectList()
-                .onErrorResume(e -> Mono.just(List.of(API_STUDENT_COURSE_DEFAULT_WHEN_ERROR)));
+                .subscribeOn(boundedElastic())
+                ;
 
         return Mono.zip(prepareApiStudentCareer, prepareApiStudentCourse, (apiStudentCareer, apiStudentCourses)
                 -> getStudentCourse(apiStudent, apiStudentCareer, apiStudentCourses));

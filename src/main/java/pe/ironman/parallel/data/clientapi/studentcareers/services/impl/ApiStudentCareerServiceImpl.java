@@ -1,10 +1,14 @@
 package pe.ironman.parallel.data.clientapi.studentcareers.services.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pe.ironman.parallel.data.clientapi.studentcareers.models.ApiStudentCareer;
 import pe.ironman.parallel.data.clientapi.studentcareers.services.ApiStudentCareerService;
 import reactor.core.publisher.Mono;
 
+import static java.time.Duration.ofSeconds;
+
+@Slf4j
 @Service
 public class ApiStudentCareerServiceImpl implements ApiStudentCareerService {
     @Override
@@ -26,6 +30,9 @@ public class ApiStudentCareerServiceImpl implements ApiStudentCareerService {
                 .percentageCompleted(50)
                 .build();
 
-        return Mono.just(career);
+        return Mono.just(career)
+                .doOnNext(item -> log.info("getStudentCareerByStudentId executed on thread: " + Thread.currentThread().getName()))
+                .delayElement(ofSeconds(1))
+                ;
     }
 }
